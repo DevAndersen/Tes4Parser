@@ -1,13 +1,24 @@
-﻿using System.Runtime.CompilerServices;
+﻿using System.Diagnostics;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
 
 namespace Tes4Parser;
 
+#if DEBUG
+[DebuggerDisplay($"{{{nameof(Debug)}}}")]
+#endif
 public class Tes4Reader : IDisposable
 {
     private readonly Stream _stream;
     private readonly BinaryReader _reader;
+
+#if DEBUG
+    /// <summary>
+    /// Preview of the upcoming bytes.
+    /// </summary>
+    private ReadOnlySpan<char> Debug => PeekdUtf8(64);
+#endif
 
     public Tes4Reader(Stream stream)
     {
