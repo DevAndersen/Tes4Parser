@@ -1,23 +1,27 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
+using Tes4Parser.Records;
 
 namespace Tes4Parser;
 
 #if DEBUG
 [DebuggerDisplay($"{{{nameof(Debug)}}}")]
 #endif
-public class Tes4Reader : IDisposable
+public partial class Tes4Reader : IDisposable
 {
     private readonly Stream _stream;
     private readonly BinaryReader _reader;
+
+    private bool HasEndBeenReached => _stream.Position >= _stream.Length;
 
 #if DEBUG
     /// <summary>
     /// Preview of the upcoming bytes.
     /// </summary>
-    private ReadOnlySpan<char> Debug => PeekdUtf8(64);
+    private ReadOnlySpan<char> Debug => PeekdUtf8Value(64);
 #endif
 
     public Tes4Reader(Stream stream)
@@ -34,6 +38,21 @@ public class Tes4Reader : IDisposable
 
         _stream = stream;
         _reader = new BinaryReader(stream);
+    }
+
+    public IEnumerable<Record> ReadRecords()
+    {
+        while (!HasEndBeenReached)
+        {
+            string typeString = ReadUtf8Value(4);
+
+            yield return typeString switch
+            {
+                Tes4Record.TypeString => Tes4Record.Read(this),
+                //GroupRecord.TypeString => GroupRecord.Read(this),
+                _ => throw new InvalidDataException($"Unexpected type string {typeString}")
+            };
+        }
     }
 
     public ReadOnlyMemory<byte> Read(int count)
@@ -53,69 +72,13 @@ public class Tes4Reader : IDisposable
         return Read((int)bytes);
     }
 
-    public byte ReadU8(string typeString)
-    {
-        ReadTypeString(typeString);
-        ThrowIfNot(_reader.ReadUInt16(), sizeof(byte));
-        return _reader.ReadByte();
-    }
-
-    public short ReadI16(string typeString)
-    {
-        ReadTypeString(typeString);
-        ThrowIfNot(_reader.ReadUInt16(), sizeof(short));
-        return _reader.ReadInt16();
-    }
-
-    public ushort ReadU16(string typeString)
-    {
-        ReadTypeString(typeString);
-        ThrowIfNot(_reader.ReadUInt16(), sizeof(ushort));
-        return _reader.ReadUInt16();
-    }
-
-    public int ReadI32(string typeString)
-    {
-        ReadTypeString(typeString);
-        ThrowIfNot(_reader.ReadUInt16(), sizeof(int));
-        return _reader.ReadInt32();
-    }
-
-    public uint ReadU32(string typeString)
-    {
-        ReadTypeString(typeString);
-        ThrowIfNot(_reader.ReadUInt16(), sizeof(uint));
-        return _reader.ReadUInt32();
-    }
-
-    public long ReadI64(string typeString)
-    {
-        ReadTypeString(typeString);
-        ThrowIfNot(_reader.ReadUInt16(), sizeof(long));
-        return _reader.ReadInt64();
-    }
-
-    public ulong ReadU64(string typeString)
-    {
-        ReadTypeString(typeString);
-        ThrowIfNot(_reader.ReadUInt16(), sizeof(ulong));
-        return _reader.ReadUInt64();
-    }
-
-    public float ReadF32(string typeString)
-    {
-        ReadTypeString(typeString);
-        ThrowIfNot(_reader.ReadUInt16(), sizeof(float));
-        return _reader.ReadSingle();
-    }
-
-    public string ReadUtf8(int length)
+    public string ReadUtf8Value(int length)
     {
         ReadOnlyMemory<byte> stringBuffer = Read(length);
         return Encoding.UTF8.GetString(stringBuffer.Span);
     }
 
-    public string PeekdUtf8(int length)
+    public string PeekdUtf8Value(int length)
     {
         ReadOnlyMemory<byte> stringBuffer = Read(length);
         string typeString = Encoding.UTF8.GetString(stringBuffer.Span);
@@ -143,7 +106,7 @@ public class Tes4Reader : IDisposable
             throw new ArgumentException($"Type string '{typeString}' must be exactly four characters.", nameof(typeString));
         }
 
-        string readTypeString = ReadUtf8(typeString.Length);
+        string readTypeString = ReadUtf8Value(typeString.Length);
         if (readTypeString != typeString)
         {
             throw new InvalidDataException($"Read type string '{typeString}', expected '{readTypeString}'.");
@@ -157,7 +120,7 @@ public class Tes4Reader : IDisposable
             throw new ArgumentException($"Type string '{typeString}' must be exactly four characters.", nameof(typeString));
         }
 
-        return PeekdUtf8(typeString.Length) == typeString;
+        return PeekdUtf8Value(typeString.Length) == typeString;
     }
 
     public T ReadStruct<T>(string typeString) where T : struct
