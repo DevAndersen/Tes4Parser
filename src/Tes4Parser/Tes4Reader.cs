@@ -81,7 +81,7 @@ public partial class Tes4Reader : IDisposable
         string readTypeString = ReadUtf8Value(typeString.Length);
         if (readTypeString != typeString)
         {
-            throw new InvalidDataException($"Read type string '{typeString}', expected '{readTypeString}'.");
+            throw new InvalidDataException($"Read type string '{readTypeString}', expected '{typeString}'.");
         }
     }
 
