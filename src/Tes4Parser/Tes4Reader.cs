@@ -1,5 +1,4 @@
-﻿using System;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -72,33 +71,6 @@ public partial class Tes4Reader : IDisposable
         return Read((int)bytes);
     }
 
-    public string ReadUtf8Value(int length)
-    {
-        ReadOnlyMemory<byte> stringBuffer = Read(length);
-        return Encoding.UTF8.GetString(stringBuffer.Span);
-    }
-
-    public string PeekdUtf8Value(int length)
-    {
-        ReadOnlyMemory<byte> stringBuffer = Read(length);
-        string typeString = Encoding.UTF8.GetString(stringBuffer.Span);
-        _stream.Position -= length;
-        return typeString;
-    }
-
-    public string ReadUtf8NullTerminated()
-    {
-        ushort length = _reader.ReadUInt16();
-        ReadOnlyMemory<byte> stringBuffer = Read(length);
-
-        if (stringBuffer.Span[^1] != '\0')
-        {
-            throw new InvalidDataException("Null-terminated string was not null-terminated");
-        }
-
-        return Encoding.UTF8.GetString(stringBuffer.Span[..^1]);
-    }
-
     public void ReadTypeString(string typeString)
     {
         if (typeString.Length != 4)
@@ -132,6 +104,23 @@ public partial class Tes4Reader : IDisposable
 
         ReadOnlyMemory<byte> structBytes = Read(size);
         return MemoryMarshal.Read<T>(structBytes.Span);
+    }
+
+    public FormId[] ReadFormList(string typeString)
+    {
+        ReadTypeString(typeString);
+        ushort formIdCount = ReadU16Value();
+        return MemoryMarshal.Cast<byte, FormId>(Read(formIdCount).Span).ToArray();
+    }
+
+    public FormId[] ReadFormListOptional(string typeString)
+    {
+        if (PeekdUtf8Value(typeString.Length) == typeString)
+        {
+            return ReadFormList(typeString);
+        }
+
+        return [];
     }
 
     private static T ThrowIfNot<T>(T actual, T expected)

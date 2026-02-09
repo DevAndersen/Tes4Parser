@@ -1,10 +1,5 @@
 ﻿namespace Tes4Parser.Records;
 
-public abstract class Record
-{
-    public RecordMetadata Metadata { get; set; }
-}
-
 public class Tes4Record : Record, IReadWrite<Tes4Record>
 {
     public const string TypeString = "TES4";
@@ -26,13 +21,51 @@ public class Tes4Record : Record, IReadWrite<Tes4Record>
     public static Tes4Record Read(Tes4Reader reader)
     {
         RecordMetadata metadata = RecordMetadata.Read(reader);
+        HeaderStruct header = reader.ReadStruct<HeaderStruct>("HEDR");
 
-        throw new NotImplementedException();
+        string? author = reader.ReadUtf8NullTerminatedOptional("CNAM");
+        string? description = reader.ReadUtf8NullTerminatedOptional("SNAM");
+
+        MasterStruct[] masters = ReadMasters(reader).ToArray();
+
+        FormId[] overriddenFormIds = reader.ReadFormListOptional("ONAM");
+
+        uint numberOfTagifiableStrings = reader.ReadU32("INTV");
+        uint? unknownCounter = reader.ReadU32Optional("INCC");
+
+        return new Tes4Record
+        {
+            Metadata = metadata,
+
+            Header = header,
+            Author = author,
+            Description = description,
+            Masters = masters,
+            OverriddenFormIds = overriddenFormIds,
+            NumberOfTagifiableStrings = numberOfTagifiableStrings,
+            UnknownCounter = unknownCounter,
+        };
     }
 
     public static void Write(Tes4Writer writer, Tes4Record record)
     {
         throw new NotImplementedException();
+    }
+
+    private static IEnumerable<MasterStruct> ReadMasters(Tes4Reader reader)
+    {
+        while (reader.PeekTypeString("MAST"))
+        {
+            reader.ReadTypeString("MAST");
+            string fileName = reader.ReadUtf8NullTerminatedValue();
+            ulong fileSize = reader.ReadU64("DATA");
+
+            yield return new MasterStruct
+            {
+                FileName = fileName,
+                FileSize = fileSize
+            };
+        }
     }
 
     public struct HeaderStruct
