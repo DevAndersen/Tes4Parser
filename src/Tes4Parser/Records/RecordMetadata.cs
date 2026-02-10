@@ -6,7 +6,7 @@ public struct RecordMetadata : IReadWrite<RecordMetadata>
 
     public uint Flags { get; set; }
 
-    public string RecordFormIdentifier { get; set; }
+    public FormId RecordFormIdentifier { get; set; }
 
     public ushort Timestamp { get; set; }
 
@@ -22,7 +22,7 @@ public struct RecordMetadata : IReadWrite<RecordMetadata>
         {
             Size = reader.ReadU32Value(),
             Flags = reader.ReadU32Value(),
-            RecordFormIdentifier = reader.ReadUtf8Value(4),
+            RecordFormIdentifier = reader.ReadFormIdValue(),
             Timestamp = reader.ReadU16Value(),
             VersionControlInfo = reader.ReadU16Value(),
             InternalRecordVersion = reader.ReadU16Value(),

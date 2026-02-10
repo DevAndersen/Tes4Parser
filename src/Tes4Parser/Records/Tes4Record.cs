@@ -14,7 +14,7 @@ public class Tes4Record : Record, IReadWrite<Tes4Record>
 
     public required FormId[] OverriddenFormIds { get; set; }
 
-    public required uint NumberOfTagifiableStrings { get; set; }
+    public required uint? NumberOfTagifiableStrings { get; set; }
 
     public required uint? UnknownCounter { get; set; }
 
@@ -30,7 +30,7 @@ public class Tes4Record : Record, IReadWrite<Tes4Record>
 
         FormId[] overriddenFormIds = reader.ReadFormListOptional("ONAM");
 
-        uint numberOfTagifiableStrings = reader.ReadU32("INTV");
+        uint? numberOfTagifiableStrings = reader.ReadU32Optional("INTV");
         uint? unknownCounter = reader.ReadU32Optional("INCC");
 
         return new Tes4Record

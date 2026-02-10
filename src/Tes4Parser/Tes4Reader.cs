@@ -1,27 +1,15 @@
-﻿using System.Diagnostics;
-using System.Runtime.CompilerServices;
+﻿using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using System.Text;
 using Tes4Parser.Records;
 
 namespace Tes4Parser;
 
-#if DEBUG
-[DebuggerDisplay($"{{{nameof(Debug)}}}")]
-#endif
-public partial class Tes4Reader : IDisposable
+public sealed partial class Tes4Reader : IDisposable
 {
     private readonly Stream _stream;
     private readonly BinaryReader _reader;
 
     private bool HasEndBeenReached => _stream.Position >= _stream.Length;
-
-#if DEBUG
-    /// <summary>
-    /// Preview of the upcoming bytes.
-    /// </summary>
-    private ReadOnlySpan<char> Debug => PeekdUtf8Value(64);
-#endif
 
     public Tes4Reader(Stream stream)
     {
@@ -39,11 +27,17 @@ public partial class Tes4Reader : IDisposable
         _reader = new BinaryReader(stream);
     }
 
-    public IEnumerable<Record> ReadRecords()
+    public IEnumerable<Record> ReadRecords(bool isGroupLevel)
     {
         while (!HasEndBeenReached)
         {
             string typeString = ReadUtf8Value(4);
+
+            // If at the group level, and the type string is all null bytes (seen with files that contains no groups), return.
+            if (isGroupLevel && typeString == "\0\0\0\0")
+            {
+                yield break;
+            }
 
             yield return typeString switch
             {

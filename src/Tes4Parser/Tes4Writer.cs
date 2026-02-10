@@ -1,5 +1,5 @@
 ﻿namespace Tes4Parser;
 
-public class Tes4Writer
+public sealed class Tes4Writer
 {
 }
