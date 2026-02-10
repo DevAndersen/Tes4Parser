@@ -82,7 +82,7 @@ public sealed partial class Tes4Reader : IDisposable
 
     public void ReadTypeString(string typeString)
     {
-        if (typeString.Length != 4)
+        if (typeString.Length != Tes4Constants.TypeStringLength)
         {
             throw new ArgumentException($"Type string '{typeString}' must be exactly four characters.", nameof(typeString));
         }
@@ -96,7 +96,7 @@ public sealed partial class Tes4Reader : IDisposable
 
     public bool PeekTypeString(string typeString)
     {
-        if (typeString.Length != 4)
+        if (typeString.Length != Tes4Constants.TypeStringLength)
         {
             throw new ArgumentException($"Type string '{typeString}' must be exactly four characters.", nameof(typeString));
         }

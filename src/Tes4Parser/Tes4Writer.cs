@@ -44,7 +44,7 @@ public sealed partial class Tes4Writer : IDisposable
 
     public void WriteTypeString(string typeString)
     {
-        if (typeString.Length != 4)
+        if (typeString.Length != Tes4Constants.TypeStringLength)
         {
             throw new ArgumentException($"Type string '{typeString}' must be exactly four characters.", nameof(typeString));
         }
