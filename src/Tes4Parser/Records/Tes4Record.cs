@@ -51,6 +51,9 @@ public class Tes4Record : Record, IReadWrite<Tes4Record>
     {
         writer.WriteTypeString(TypeString);
         Metadata.Write(writer);
+        writer.WriteStruct<HeaderStruct>("HEDR", Header);
+        writer.WriteUtf8NullTerminated("CNAM", Author);
+        writer.WriteUtf8NullTerminated("SNAM", Description);
     }
 
     private static IEnumerable<MasterStruct> ReadMasters(Tes4Reader reader)

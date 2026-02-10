@@ -1,4 +1,6 @@
-﻿using System.Text;
+﻿using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
+using System.Text;
 using Tes4Parser.Records;
 
 namespace Tes4Parser;
@@ -50,10 +52,24 @@ public sealed partial class Tes4Writer : IDisposable
         WriteUtf8Value(typeString);
     }
 
-    public void WriteUtf8Value(string value)
+    public void WriteStruct<T>(string typeString, T? value) where T : struct
     {
-        byte[] bytes = Encoding.UTF8.GetBytes(value);
-        Write(bytes);
+        if (value == null)
+        {
+            return;
+        }
+
+        WriteTypeString(typeString);
+        WriteStructValue(value.Value);
+    }
+
+    public void WriteStructValue<T>(T value) where T : struct
+    {
+        ushort size = (ushort)Unsafe.SizeOf<T>();
+        WriteU16Value(size);
+        byte[] buffer = new byte[size];
+        MemoryMarshal.Write(buffer, value);
+        Write(buffer);
     }
 
     public void Dispose()
