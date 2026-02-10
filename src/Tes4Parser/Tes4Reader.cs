@@ -27,6 +27,12 @@ public sealed partial class Tes4Reader : IDisposable
         _reader = new BinaryReader(stream);
     }
 
+    public Tes4Record ReadHeader()
+    {
+        ReadTypeString(Tes4Record.TypeString);
+        return Tes4Record.Read(this);
+    }
+
     public IEnumerable<Record> ReadRecords(bool isGroupLevel)
     {
         while (!HasEndBeenReached)
@@ -41,7 +47,6 @@ public sealed partial class Tes4Reader : IDisposable
 
             yield return typeString switch
             {
-                Tes4Record.TypeString => Tes4Record.Read(this),
                 //GroupRecord.TypeString => GroupRecord.Read(this),
                 _ => throw new InvalidDataException($"Unexpected type string {typeString}")
             };

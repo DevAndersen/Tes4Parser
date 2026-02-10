@@ -1,6 +1,6 @@
 ﻿namespace Tes4Parser.Records;
 
-public class GroupRecord
+public class GroupRecord : Record
 {
     public const string TypeString = "GRUP";
 
