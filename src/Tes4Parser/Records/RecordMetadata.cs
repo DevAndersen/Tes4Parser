@@ -30,8 +30,7 @@ public struct RecordMetadata : IReadWrite<RecordMetadata>
         };
     }
 
-    public static void Write(Tes4Writer writer, RecordMetadata record)
+    public readonly void Write(Tes4Writer writer)
     {
-        throw new NotImplementedException();
     }
 }

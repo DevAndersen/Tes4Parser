@@ -47,7 +47,7 @@ public class Tes4Record : Record, IReadWrite<Tes4Record>
         };
     }
 
-    public static void Write(Tes4Writer writer, Tes4Record record)
+    public void Write(Tes4Writer writer)
     {
         throw new NotImplementedException();
     }

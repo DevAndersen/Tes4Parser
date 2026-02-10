@@ -20,8 +20,10 @@ public static class Tes4StreamParser
         };
     }
 
-    public static void Write(Tes4Result result)
+    public static void Write(Stream stream, Tes4Result result)
     {
-        _ = result;
+        Tes4Writer writer = new Tes4Writer(stream);
+
+        writer.Write(result);
     }
 }
