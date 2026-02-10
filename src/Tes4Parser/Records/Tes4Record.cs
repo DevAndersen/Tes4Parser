@@ -26,7 +26,7 @@ public class Tes4Record : Record, IReadWrite<Tes4Record>
         string? author = reader.ReadUtf8NullTerminatedOptional("CNAM");
         string? description = reader.ReadUtf8NullTerminatedOptional("SNAM");
 
-        MasterStruct[] masters = ReadMasters(reader).ToArray();
+        MasterStruct[] masters = MasterStruct.ReadMasters(reader).ToArray();
 
         FormId[] overriddenFormIds = reader.ReadFormListOptional("ONAM");
 
@@ -54,22 +54,7 @@ public class Tes4Record : Record, IReadWrite<Tes4Record>
         writer.WriteStruct<HeaderStruct>("HEDR", Header);
         writer.WriteUtf8NullTerminated("CNAM", Author);
         writer.WriteUtf8NullTerminated("SNAM", Description);
-    }
-
-    private static IEnumerable<MasterStruct> ReadMasters(Tes4Reader reader)
-    {
-        while (reader.PeekTypeString("MAST"))
-        {
-            reader.ReadTypeString("MAST");
-            string fileName = reader.ReadUtf8NullTerminatedValue();
-            ulong fileSize = reader.ReadU64("DATA");
-
-            yield return new MasterStruct
-            {
-                FileName = fileName,
-                FileSize = fileSize
-            };
-        }
+        MasterStruct.WriteMasters(writer, Masters);
     }
 
     public struct HeaderStruct
@@ -86,5 +71,30 @@ public class Tes4Record : Record, IReadWrite<Tes4Record>
         public required string FileName { get; set; }
 
         public required ulong FileSize { get; set; }
+
+        public static IEnumerable<MasterStruct> ReadMasters(Tes4Reader reader)
+        {
+            while (reader.PeekTypeString("MAST"))
+            {
+                reader.ReadTypeString("MAST");
+                string fileName = reader.ReadUtf8NullTerminatedValue();
+                ulong fileSize = reader.ReadU64("DATA");
+
+                yield return new MasterStruct
+                {
+                    FileName = fileName,
+                    FileSize = fileSize
+                };
+            }
+        }
+
+        public static void WriteMasters(Tes4Writer writer, MasterStruct[] masters)
+        {
+            foreach (MasterStruct master in masters)
+            {
+                writer.WriteUtf8NullTerminated("MAST", master.FileName);
+                writer.WriteU64("DATA", master.FileSize);
+            }
+        }
     }
 }

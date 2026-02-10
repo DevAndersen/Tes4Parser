@@ -10,6 +10,7 @@ public partial class Tes4Writer
         }
 
         WriteTypeString(typeString);
+        WriteU16Value(sizeof(uint));
         WriteU32Value(value.Value);
     }
 

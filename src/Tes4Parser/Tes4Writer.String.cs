@@ -18,6 +18,7 @@ public partial class Tes4Writer
         }
 
         WriteTypeString(typeString);
+        WriteU16Value((ushort)value.Length);
         WriteUtf8Value(value);
     }
 

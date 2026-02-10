@@ -10,6 +10,7 @@ public partial class Tes4Writer
         }
 
         WriteTypeString(typeString);
+        WriteU16Value(sizeof(ulong));
         WriteU64Value(value.Value);
     }
 
