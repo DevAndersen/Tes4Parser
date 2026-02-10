@@ -32,5 +32,12 @@ public struct RecordMetadata : IReadWrite<RecordMetadata>
 
     public readonly void Write(Tes4Writer writer)
     {
+        writer.WriteU32Value(Size);
+        writer.WriteU32Value(Flags);
+        writer.WriteFormIdValue(RecordFormIdentifier);
+        writer.WriteU16Value(Timestamp);
+        writer.WriteU16Value(VersionControlInfo);
+        writer.WriteU16Value(InternalRecordVersion);
+        writer.WriteU16Value(Unknown);
     }
 }

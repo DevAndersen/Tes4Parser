@@ -97,7 +97,11 @@ public sealed partial class Tes4Reader : IDisposable
     public T ReadStruct<T>(string typeString) where T : struct
     {
         ReadTypeString(typeString);
+        return ReadStructValue<T>();
+    }
 
+    public T ReadStructValue<T>() where T : struct
+    {
         ushort size = _reader.ReadUInt16();
         ThrowIfNot(size, Unsafe.SizeOf<T>());
 

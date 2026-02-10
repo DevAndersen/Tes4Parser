@@ -49,7 +49,8 @@ public class Tes4Record : Record, IReadWrite<Tes4Record>
 
     public void Write(Tes4Writer writer)
     {
-        throw new NotImplementedException();
+        writer.WriteTypeString(TypeString);
+        Metadata.Write(writer);
     }
 
     private static IEnumerable<MasterStruct> ReadMasters(Tes4Reader reader)

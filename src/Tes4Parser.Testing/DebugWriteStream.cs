@@ -1,11 +1,10 @@
 ﻿using System.Diagnostics;
 using System.Text;
-
 /// <summary>
 /// An extension of <see cref="MemoryStream"/> which allows non-destructive peeking at the underlying buffer.
 /// </summary>
 [DebuggerDisplay($"{{{nameof(Debug)}}}")]
-public class DebugStream : MemoryStream
+public class DebugWriteStream : MemoryStream
 {
     public ReadOnlySpan<char> Debug
     {
@@ -13,8 +12,8 @@ public class DebugStream : MemoryStream
         {
             ReadOnlySpan<byte> span = GetBuffer().AsSpan();
 
-            int start = (int)Position;
-            int end = int.Min((int)Position + 50, (int)Length - (int)Position);
+            int start = int.Max((int)Position - 50, 0);
+            int end = (int)Position;
 
             return Encoding.UTF8.GetString(span.Slice(start, end));
         }

@@ -4,10 +4,14 @@ string path = "test.esp";
 
 using FileStream stream = File.Open(path, FileMode.Open);
 
-DebugStream debugStream = new DebugStream();
-stream.CopyTo(debugStream);
-debugStream.Position = 0;
+DebugReadStream readStream = new DebugReadStream();
+stream.CopyTo(readStream);
+readStream.Position = 0;
 
-Tes4Result result = Tes4StreamParser.Read(debugStream);
+Tes4Result result = Tes4StreamParser.Read(readStream);
+
+using DebugWriteStream writeStream = new DebugWriteStream();
+
+Tes4StreamParser.Write(writeStream, result);
 
 Console.WriteLine();
