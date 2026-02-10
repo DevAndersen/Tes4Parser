@@ -14,16 +14,15 @@ using DebugWriteStream writeStream = new DebugWriteStream();
 
 Tes4StreamParser.Write(writeStream, result);
 
-fileStream.Position = 0;
-writeStream.Position = 0;
-
 // Validation
 
 using DebugReadStream checkReadStream = new DebugReadStream();
+fileStream.Position = 0;
 fileStream.CopyTo(checkReadStream);
 checkReadStream.Position = 0;
 
 using DebugReadStream checkWriteStream = new DebugReadStream();
+writeStream.Position = 0;
 writeStream.CopyTo(checkWriteStream);
 checkWriteStream.Position = 0;
 

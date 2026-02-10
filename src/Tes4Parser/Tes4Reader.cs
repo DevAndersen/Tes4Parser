@@ -33,8 +33,9 @@ public sealed partial class Tes4Reader : IDisposable
         return Tes4Record.Read(this);
     }
 
-    public IEnumerable<Record> ReadRecords(bool isGroupLevel)
+    public IEnumerable<Record> ReadRecords(bool isGroupLevel, uint? readLength = null)
     {
+        uint? maxReadLength = (uint)_stream.Position + readLength;
         while (!HasEndBeenReached)
         {
             string typeString = ReadUtf8Value(4);
@@ -45,9 +46,18 @@ public sealed partial class Tes4Reader : IDisposable
                 yield break;
             }
 
+            // If a read length has been specified, and that stream position has been reached, return.
+            if (maxReadLength <= _stream.Position)
+            {
+                yield break;
+            }
+
             yield return typeString switch
             {
-                //GroupRecord.TypeString => GroupRecord.Read(this),
+                GroupRecord.TypeString => GroupRecord.Read(this),
+                KeywordRecord.TypeString => KeywordRecord.Read(this),
+                GlobalVariableRecord.TypeString => GlobalVariableRecord.Read(this),
+                FactionRecord.TypeString => FactionRecord.Read(this),
                 _ => throw new InvalidDataException($"Unexpected type string {typeString}")
             };
         }
@@ -92,6 +102,13 @@ public sealed partial class Tes4Reader : IDisposable
         }
 
         return PeekdUtf8Value(typeString.Length) == typeString;
+    }
+
+    public T? ReadStructOptional<T>(string typeString) where T : struct
+    {
+        return PeekTypeString(typeString)
+            ? ReadStruct<T>(typeString)
+            : null;
     }
 
     public T ReadStruct<T>(string typeString) where T : struct
