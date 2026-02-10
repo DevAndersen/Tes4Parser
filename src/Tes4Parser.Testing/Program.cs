@@ -1,4 +1,5 @@
 ﻿using Tes4Parser;
+using Tes4Parser.Testing;
 
 string path = "test.esp";
 

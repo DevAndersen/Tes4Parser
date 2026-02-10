@@ -1,5 +1,8 @@
 ﻿using System.Diagnostics;
 using System.Text;
+
+namespace Tes4Parser.Testing;
+
 /// <summary>
 /// An extension of <see cref="MemoryStream"/> which allows non-destructive peeking at the underlying buffer.
 /// </summary>
