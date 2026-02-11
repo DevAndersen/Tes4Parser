@@ -58,6 +58,7 @@ public sealed partial class Tes4Reader : IDisposable
                 KeywordRecord.TypeString => KeywordRecord.Read(this),
                 GlobalVariableRecord.TypeString => GlobalVariableRecord.Read(this),
                 FactionRecord.TypeString => FactionRecord.Read(this),
+                MagicEffectRecord.TypeString => MagicEffectRecord.Read(this),
                 _ => null!
                 //_ => throw new InvalidDataException($"Unexpected type string {typeString}")
             };
@@ -134,6 +135,26 @@ public sealed partial class Tes4Reader : IDisposable
         return MemoryMarshal.Read<T>(structBytes.Span);
     }
 
+    public T[] ReadStructMultiple<T>(string typeString) where T : struct
+    {
+        ReadTypeString(typeString);
+
+        ushort count = ReadU16Value(); // Todo: Implementation might not be correct, needs further testing.
+        return MemoryMarshal.Cast<byte, T>(Read(count).Span).ToArray();
+    }
+
+    public IEnumerable<T> ReadMultipleFields<T>(string typeString) where T : struct
+    {
+        while (PeekTypeString(typeString))
+        {
+            ReadTypeString(typeString);
+
+            ushort structSize = ThrowIfNot(ReadU16Value(), (ushort)Unsafe.SizeOf<T>());
+            ReadOnlyMemory<byte> structBytes = Read(structSize);
+            yield return MemoryMarshal.Read<T>(structBytes.Span);
+        }
+    }
+
     public FormId[] ReadFormList(string typeString)
     {
         ReadTypeString(typeString);
@@ -143,7 +164,7 @@ public sealed partial class Tes4Reader : IDisposable
 
     public FormId[] ReadFormListOptional(string typeString)
     {
-        if (PeekdUtf8Value(typeString.Length) == typeString)
+        if (PeekTypeString(typeString))
         {
             return ReadFormList(typeString);
         }
