@@ -1,4 +1,6 @@
-﻿namespace Tes4Parser.Records;
+﻿using System.Runtime.CompilerServices;
+
+namespace Tes4Parser.Records;
 
 public struct RecordMetadata : IReadWrite<RecordMetadata>
 {
@@ -15,6 +17,8 @@ public struct RecordMetadata : IReadWrite<RecordMetadata>
     public ushort InternalRecordVersion { get; set; }
 
     public ushort Unknown { get; set; }
+
+    public readonly uint DataSize => Size - (Tes4Constants.TypeStringLength + (uint)Unsafe.SizeOf<RecordMetadata>());
 
     public static RecordMetadata Read(Tes4Reader reader)
     {

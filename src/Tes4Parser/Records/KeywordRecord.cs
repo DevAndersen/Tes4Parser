@@ -24,8 +24,12 @@ public class KeywordRecord : Record, IReadWrite<KeywordRecord>
         };
     }
 
-    public void Write(Tes4Writer writer)
+    public override void Write(Tes4Writer writer)
     {
-        throw new NotImplementedException();
+        writer.WriteTypeString(TypeString);
+        Metadata.Write(writer);
+
+        writer.WriteUtf8NullTerminated("EDID", EditorID);
+        writer.WriteU32("CNAM", Color);
     }
 }

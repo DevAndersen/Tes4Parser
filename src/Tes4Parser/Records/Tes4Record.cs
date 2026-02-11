@@ -47,7 +47,7 @@ public class Tes4Record : Record, IReadWrite<Tes4Record>
         };
     }
 
-    public void Write(Tes4Writer writer)
+    public override void Write(Tes4Writer writer)
     {
         writer.WriteTypeString(TypeString);
         Metadata.Write(writer);
@@ -55,6 +55,11 @@ public class Tes4Record : Record, IReadWrite<Tes4Record>
         writer.WriteUtf8NullTerminated("CNAM", Author);
         writer.WriteUtf8NullTerminated("SNAM", Description);
         MasterStruct.WriteMasters(writer, Masters);
+
+        writer.WriteFormList("ONAM", OverriddenFormIds);
+
+        writer.WriteU32("INTV", NumberOfTagifiableStrings);
+        writer.WriteU32("INCC", UnknownCounter);
     }
 
     public struct HeaderStruct

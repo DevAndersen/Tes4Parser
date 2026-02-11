@@ -9,7 +9,7 @@ public class GroupRecord : Record, IReadWrite<GroupRecord>
     public static GroupRecord Read(Tes4Reader reader)
     {
         RecordMetadata metadata = RecordMetadata.Read(reader);
-        Record[] records = reader.ReadRecords(false, metadata.Size).ToArray();
+        Record[] records = reader.ReadRecords(false, metadata.DataSize).ToArray();
 
         return new GroupRecord
         {
@@ -18,8 +18,14 @@ public class GroupRecord : Record, IReadWrite<GroupRecord>
         };
     }
 
-    public void Write(Tes4Writer writer)
+    public override void Write(Tes4Writer writer)
     {
-        throw new NotImplementedException();
+        writer.WriteTypeString(TypeString);
+        Metadata.Write(writer);
+
+        foreach (Record record in Records)
+        {
+            record.Write(writer);
+        }
     }
 }

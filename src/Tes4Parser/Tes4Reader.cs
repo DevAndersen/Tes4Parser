@@ -38,7 +38,13 @@ public sealed partial class Tes4Reader : IDisposable
         uint? maxReadLength = (uint)_stream.Position + readLength;
         while (!HasEndBeenReached)
         {
-            string typeString = ReadUtf8Value(4);
+            // If a read length has been specified, and that stream position has been reached, return.
+            if (maxReadLength <= _stream.Position)
+            {
+                yield break;
+            }
+
+            string typeString = ReadUtf8Value(Tes4Constants.TypeStringLength);
 
             // If at the group level, and the type string is all null bytes (seen with files that contains no groups), return.
             if (isGroupLevel && typeString == "\0\0\0\0")
@@ -46,20 +52,22 @@ public sealed partial class Tes4Reader : IDisposable
                 yield break;
             }
 
-            // If a read length has been specified, and that stream position has been reached, return.
-            if (maxReadLength <= _stream.Position)
-            {
-                yield break;
-            }
-
-            yield return typeString switch
+            Record? temporary = typeString switch
             {
                 GroupRecord.TypeString => GroupRecord.Read(this),
                 KeywordRecord.TypeString => KeywordRecord.Read(this),
                 GlobalVariableRecord.TypeString => GlobalVariableRecord.Read(this),
                 FactionRecord.TypeString => FactionRecord.Read(this),
-                _ => throw new InvalidDataException($"Unexpected type string {typeString}")
+                _ => null!
+                //_ => throw new InvalidDataException($"Unexpected type string {typeString}")
             };
+
+            if (temporary == null)
+            {
+                break;
+            }
+
+            yield return temporary;
         }
     }
 

@@ -16,9 +16,9 @@ public class DebugWriteStream : MemoryStream
             ReadOnlySpan<byte> span = GetBuffer().AsSpan();
 
             int start = int.Max((int)Position - 50, 0);
-            int end = (int)Position;
+            int length = int.Min(50, (int)(Length - start));
 
-            return Encoding.UTF8.GetString(span.Slice(start, end));
+            return Encoding.UTF8.GetString(span.Slice(start, length));
         }
     }
 }

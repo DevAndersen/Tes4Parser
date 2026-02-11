@@ -127,7 +127,7 @@ public class FactionRecord : Record, IReadWrite<FactionRecord>
         FormId? crimeGroup = reader.ReadFormIdOptional("CRGR");
         FormId? jailOutfit = reader.ReadFormIdOptional("JOUT");
 
-        CrimeGoldStruct? crimeGold = reader.ReadStructOptional<CrimeGoldStruct>("CRVA");
+        CrimeGoldStruct? crimeGold = reader.ReadStructOptional<CrimeGoldStruct>("CRVA"); // Todo: Currently unused.
 
         uint? rankId = reader.ReadU32Optional("RNAM");
         string? maleRankTitle = reader.ReadUtf8NullTerminatedOptional("MNAM");
@@ -159,8 +159,8 @@ public class FactionRecord : Record, IReadWrite<FactionRecord>
         };
     }
 
-    public void Write(Tes4Writer writer)
+    public override void Write(Tes4Writer writer)
     {
-        throw new NotImplementedException();
+        //throw new NotImplementedException();
     }
 }

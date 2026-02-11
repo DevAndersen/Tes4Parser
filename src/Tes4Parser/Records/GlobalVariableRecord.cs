@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Tes4Parser.Records;
+﻿namespace Tes4Parser.Records;
 
 public class GlobalVariableRecord : Record, IReadWrite<GlobalVariableRecord>
 {
@@ -30,9 +28,14 @@ public class GlobalVariableRecord : Record, IReadWrite<GlobalVariableRecord>
         };
     }
 
-    public void Write(Tes4Writer writer)
+    public override void Write(Tes4Writer writer)
     {
-        throw new NotImplementedException();
+        writer.WriteTypeString(TypeString);
+        Metadata.Write(writer);
+
+        writer.WriteUtf8NullTerminated("EDID", EditorID);
+        writer.WriteU8("FNAM", (byte)ValueType);
+        writer.WriteF32("FLTV", Value);
     }
 
     public enum GlobalVariableValueType : byte

@@ -1,6 +1,5 @@
 ﻿using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using System.Text;
 using Tes4Parser.Records;
 
 namespace Tes4Parser;
@@ -32,7 +31,7 @@ public sealed partial class Tes4Writer : IDisposable
 
         foreach (GroupRecord group in result.Groups)
         {
-            //group.Write(this);
+            group.Write(this);
         }
     }
 
@@ -70,6 +69,19 @@ public sealed partial class Tes4Writer : IDisposable
         byte[] buffer = new byte[size];
         MemoryMarshal.Write(buffer, value);
         Write(buffer);
+    }
+
+    public void WriteFormList(string typeString, FormId[] formIds)
+    {
+        if (formIds.Length == 0)
+        {
+            return;
+        }
+
+        WriteTypeString(typeString);
+        ushort fullSize = (ushort)(Unsafe.SizeOf<FormId>() * formIds.Length);
+        WriteU16Value(fullSize);
+        Write(MemoryMarshal.AsBytes(formIds));
     }
 
     public void Dispose()
