@@ -18,7 +18,11 @@ public class DebugReadStream : MemoryStream
             int start = (int)Position;
             int length = int.Min(50, (int)(Length - start));
 
-            return Encoding.UTF8.GetString(span.Slice(start, length));
+            return span
+                .Slice(start, length)
+                .ToArray()
+                .Select(x => (char)x)
+                .ToArray();
         }
     }
 }
