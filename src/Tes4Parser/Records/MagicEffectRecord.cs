@@ -6,7 +6,7 @@ public class MagicEffectRecord : Record, IReadWrite<MagicEffectRecord>
 
     public required string EditorID { get; set; }
 
-    // Todo: VMAD Unknown
+    public required VmadStruct? Vmad { get; set; }
 
     public required string? Name { get; set; }
 
@@ -153,11 +153,12 @@ public class MagicEffectRecord : Record, IReadWrite<MagicEffectRecord>
 
         string editorId = reader.ReadUtf8NullTerminated("EDID");
 
+        VmadStruct? vmad = null;
         if (reader.PeekdUtf8Value(Tes4Constants.TypeStringLength) == "VMAD")
         {
             reader.ReadTypeString("VMAD");
             ushort size = reader.ReadU16Value();
-            Vmad.Read(reader);
+            vmad = VmadStruct.Read(reader, size);
         }
 
         string? name = reader.ReadUtf8NullTerminatedOptional("FULL");
@@ -183,6 +184,7 @@ public class MagicEffectRecord : Record, IReadWrite<MagicEffectRecord>
             Metadata = metadata,
 
             EditorID = editorId,
+            Vmad = vmad,
             Name = name,
             Static = staticId,
             KeywordCount = keywordCount,

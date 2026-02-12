@@ -13,6 +13,8 @@ public sealed partial class Tes4Reader : IDisposable
 
     private bool HasEndBeenReached => _stream.Position >= _stream.Length;
 
+    public long Position => _stream.Position;
+
     public Tes4Reader(Stream stream)
     {
         if (!stream.CanRead)
@@ -61,6 +63,7 @@ public sealed partial class Tes4Reader : IDisposable
                 GlobalVariableRecord.TypeString => GlobalVariableRecord.Read(this),
                 FactionRecord.TypeString => FactionRecord.Read(this),
                 MagicEffectRecord.TypeString => MagicEffectRecord.Read(this),
+                SpellRecord.TypeString => SpellRecord.Read(this),
                 _ => null!
                 //_ => throw new InvalidDataException($"Unexpected type string {typeString}")
             };
@@ -125,15 +128,15 @@ public sealed partial class Tes4Reader : IDisposable
     public T ReadStruct<T>(string typeString) where T : struct
     {
         ReadTypeString(typeString);
+        ushort size = _reader.ReadUInt16();
+        ThrowIfNot(size, Unsafe.SizeOf<T>());
+
         return ReadStructValue<T>();
     }
 
     public T ReadStructValue<T>() where T : struct
     {
-        ushort size = _reader.ReadUInt16();
-        ThrowIfNot(size, Unsafe.SizeOf<T>());
-
-        ReadOnlyMemory<byte> structBytes = Read(size);
+        ReadOnlyMemory<byte> structBytes = Read(Unsafe.SizeOf<T>());
         return MemoryMarshal.Read<T>(structBytes.Span);
     }
 

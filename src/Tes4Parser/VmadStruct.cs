@@ -1,6 +1,6 @@
 ﻿namespace Tes4Parser;
 
-public struct Vmad : IReadWrite<Vmad> // Todo: Find a more appropriate name for this.
+public struct VmadStruct // Todo: Find a more appropriate name for this.
 {
     public const string TypeString = "VMAD";
 
@@ -114,8 +114,10 @@ public struct Vmad : IReadWrite<Vmad> // Todo: Find a more appropriate name for 
         BoolArray = 15,
     }
 
-    public static Vmad Read(Tes4Reader reader)
+    public static VmadStruct Read(Tes4Reader reader, ushort size)
     {
+        long startPos = reader.Position;
+
         short version = reader.ReadI16Value();
         short objectFormat = reader.ReadI16Value();
 
@@ -128,9 +130,12 @@ public struct Vmad : IReadWrite<Vmad> // Todo: Find a more appropriate name for 
             scriptSections[i] = ScriptSection.Read(reader);
         }
 
-        // Todo: Fragments. Maybe peeking on the next type string is a good approach to determine if there are any fragments?
+        if (reader.Position != startPos + size)
+        {
+            // Todo: Fragments.
+        }
 
-        return new Vmad
+        return new VmadStruct
         {
             Version = version,
             ObjectFormat = objectFormat
