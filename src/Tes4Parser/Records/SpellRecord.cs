@@ -6,7 +6,7 @@ public class SpellRecord : Record, IReadWrite<SpellRecord>
 
     public required string EditorID { get; set; }
 
-    public required ObjectBound ObjectBounds { get; set; }
+    public required ObjectBoundaryStruct ObjectBounds { get; set; }
 
     public required string? FullName { get; set; }
 
@@ -25,7 +25,7 @@ public class SpellRecord : Record, IReadWrite<SpellRecord>
         RecordMetadata metadata = RecordMetadata.Read(reader);
         string editorId = reader.ReadUtf8NullTerminated("EDID");
 
-        ObjectBound objectBound = reader.ReadStruct<ObjectBound>("OBND");
+        ObjectBoundaryStruct objectBound = reader.ReadStruct<ObjectBoundaryStruct>("OBND");
         string? fullName = reader.ReadUtf8NullTerminatedOptional("FULL"); // Todo: Localized string, might need special handling.
         FormId? menuIcon = reader.ReadFormIdOptional("MDOB");
         FormId equipType = reader.ReadFormId("ETYP");
@@ -163,7 +163,7 @@ public class SpellRecord : Record, IReadWrite<SpellRecord>
     }
 }
 
-public struct ObjectBound // Todo: Move this somewhere else.
+public struct ObjectBoundaryStruct // Todo: Move this somewhere else.
 {
     public short X1 { get; set; }
 
