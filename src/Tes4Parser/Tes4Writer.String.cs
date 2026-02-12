@@ -39,4 +39,10 @@ public partial class Tes4Writer
         WriteUtf8Value(value);
         WriteU8Value(0);
     }
+
+    public void WriteWStringValue(string value)
+    {
+        WriteU16Value((ushort)value.Length);
+        WriteUtf8Value(value);
+    }
 }

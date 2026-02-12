@@ -43,4 +43,10 @@ public partial class Tes4Reader
 
         return Encoding.UTF8.GetString(stringBuffer.Span[..^1]);
     }
+
+    public string ReadWStringValue()
+    {
+        ushort length = ReadU16Value();
+        return ReadUtf8Value(length);
+    }
 }

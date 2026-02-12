@@ -1,9 +1,11 @@
-﻿using System.Runtime.CompilerServices;
+﻿using System.Diagnostics;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using Tes4Parser.Records;
 
 namespace Tes4Parser;
 
+[DebuggerDisplay($"{{{nameof(_stream)}}}")]
 public sealed partial class Tes4Writer : IDisposable
 {
     private readonly Stream _stream;

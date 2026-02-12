@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Tes4Parser.Records;
+﻿namespace Tes4Parser.Records;
 
 public class MagicEffectRecord : Record, IReadWrite<MagicEffectRecord>
 {
@@ -157,8 +155,9 @@ public class MagicEffectRecord : Record, IReadWrite<MagicEffectRecord>
 
         if (reader.PeekdUtf8Value(Tes4Constants.TypeStringLength) == "VMAD")
         {
-            // Todo
-            //ReadVMAD(reader);
+            reader.ReadTypeString("VMAD");
+            ushort size = reader.ReadU16Value();
+            Vmad.Read(reader);
         }
 
         string? name = reader.ReadUtf8NullTerminatedOptional("FULL");
