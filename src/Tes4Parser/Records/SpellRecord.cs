@@ -18,12 +18,10 @@ public class SpellRecord : Record, IReadWrite<SpellRecord>
 
     public required SpellItemStruct SpellItem { get; set; }
 
-    public required List<SpellEffect> SpellEffects { get; set; }
+    public required List<SpellEffectStruct> SpellEffects { get; set; }
 
     public static SpellRecord Read(Tes4Reader reader)
     {
-        long startPos = reader.Position;
-
         RecordMetadata metadata = RecordMetadata.Read(reader);
         string editorId = reader.ReadUtf8NullTerminated("EDID");
 
@@ -35,11 +33,11 @@ public class SpellRecord : Record, IReadWrite<SpellRecord>
 
         SpellItemStruct spellItem = reader.ReadStruct<SpellItemStruct>("SPIT");
 
-        List<SpellEffect> spellEffects = [];
+        List<SpellEffectStruct> spellEffects = [];
 
-        while (reader.Position != startPos + metadata.DataSize) // Todo: Incorrect
+        while (reader.PeekTypeString(SpellEffectStruct.TypeString))
         {
-            spellEffects.Add(SpellEffect.Read(reader));
+            spellEffects.Add(SpellEffectStruct.Read(reader));
         }
 
         return new SpellRecord
@@ -125,21 +123,23 @@ public class SpellRecord : Record, IReadWrite<SpellRecord>
         TargetLocation = 0x04
     }
 
-    public struct SpellEffect : IReadWrite<SpellEffect>
+    public struct SpellEffectStruct : IReadWrite<SpellEffectStruct>
     {
+        public const string TypeString = "EFID";
+
         public required FormId EffectId { get; set; }
 
         public required SpellEffectItem SpellEffectItem { get; set; }
 
         public required ConditionDataField[] Conditions { get; set; }
 
-        public static SpellEffect Read(Tes4Reader reader)
+        public static SpellEffectStruct Read(Tes4Reader reader)
         {
-            FormId effectId = reader.ReadFormId("EFID");
+            FormId effectId = reader.ReadFormId(TypeString);
             SpellEffectItem spellEffectItem = reader.ReadStruct<SpellEffectItem>("EFIT");
             ConditionDataField[] conditions = reader.ReadMultipleFields<ConditionDataField>("CTDA").ToArray();
 
-            return new SpellEffect
+            return new SpellEffectStruct
             {
                 EffectId = effectId,
                 SpellEffectItem = spellEffectItem,
