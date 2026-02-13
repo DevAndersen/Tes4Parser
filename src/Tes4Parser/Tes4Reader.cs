@@ -66,6 +66,7 @@ public sealed partial class Tes4Reader : IDisposable
                 SpellRecord.TypeString => SpellRecord.Read(this),
                 TextureSetRecord.TypeString => TextureSetRecord.Read(this),
                 ProjectileRecord.TypeString => ProjectileRecord.Read(this),
+                DialogTopicRecord.TypeString => DialogTopicRecord.Read(this),
                 _ => null!
                 //_ => throw new InvalidDataException($"Unexpected type string {typeString}")
             };
