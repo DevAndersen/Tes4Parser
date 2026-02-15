@@ -4,9 +4,11 @@ public struct VmadStruct // Todo: Find a more appropriate name for this.
 {
     public const string TypeString = "VMAD";
 
-    public short Version { get; set; }
+    public required short Version { get; set; }
 
-    public short ObjectFormat { get; set; }
+    public required short ObjectFormat { get; set; }
+
+    public required ScriptSection[] Sections { get; set; }
 
     public struct ScriptSection : IReadWrite<ScriptSection>
     {
@@ -100,6 +102,11 @@ public struct VmadStruct // Todo: Find a more appropriate name for this.
         }
     }
 
+    public struct FragmentStruct
+    {
+
+    }
+
     public enum PropertyType : byte
     {
         Object = 1,
@@ -132,13 +139,15 @@ public struct VmadStruct // Todo: Find a more appropriate name for this.
 
         if (reader.Position != startPos + size)
         {
+            throw new NotImplementedException();
             // Todo: Fragments.
         }
 
         return new VmadStruct
         {
             Version = version,
-            ObjectFormat = objectFormat
+            ObjectFormat = objectFormat,
+            Sections = scriptSections
         };
     }
 
